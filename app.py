@@ -12,6 +12,7 @@ from frontend.helpers import generate_mock_products
 from Agents.comparison_agent import comparison_agent
 from Agents.recommendation_agent import recommendation_agent
 from Services.amazon_service import AmazonService
+from frontend.home import render_home_page
 
 # 1. Page Configuration (Must be first Streamlit command)
 st.set_page_config(
@@ -21,8 +22,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Initialize Session States
+if "entered_app" not in st.session_state:
+    st.session_state.entered_app = False
+
 # 2. Inject CSS Styles to override native widget styling
 inject_custom_css()
+
+# Route to Welcome/Home page if not yet entered
+if not st.session_state.entered_app:
+    render_home_page()
+    st.stop()
 
 # 3. Render Top Navigation Bar (Native Streamlit columns)
 render_header()
@@ -42,7 +52,7 @@ if "agent_status" not in st.session_state:
         "response": "pending"
     }
 if "search_query" not in st.session_state:
-    st.session_state.search_query = "Sony WH-1000XM5"
+    st.session_state.search_query = ""
 if "budget_limit" not in st.session_state:
     st.session_state.budget_limit = 30000.0
 if "active_brand" not in st.session_state:
@@ -105,10 +115,12 @@ def run_agents(products, budget_val, brand_filter_val, progress_placeholder):
     st.session_state.errors = state.get("errors", [])
 
 # 6. Setup main content headers using Streamlit native colored markdown formatting
-st.markdown(f'# Results for :violet["{query}"]')
-st.markdown('<div style="color: #64748b; font-size: 1rem; margin-top: -0.75rem; margin-bottom: 2rem;">AI-powered comparison across multiple e-commerce platforms.</div>', unsafe_allow_html=True)
-
-# Progress tracker placeholder
+if st.session_state.has_searched:
+    st.markdown(f'# Results for :blue["{query}"]')
+    st.markdown(
+        '<div style="color: #64748b; font-size: 1rem; margin-top: -0.75rem; margin-bottom: 2rem;">AI-powered comparison across multiple e-commerce platforms.</div>',
+        unsafe_allow_html=True
+    )
 progress_placeholder = st.empty()
 
 # 7. Check Actions and Triggers
@@ -118,9 +130,7 @@ trigger_filter = False
 # Scraper trigger conditions
 if search_clicked:
     trigger_search = True
-elif not st.session_state.has_searched:
-    trigger_search = True
-elif query != st.session_state.search_query:
+elif query != st.session_state.search_query and query.strip():
     trigger_search = True
 
 # Agent filter-only trigger conditions

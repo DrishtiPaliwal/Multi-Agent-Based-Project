@@ -4,14 +4,27 @@ def inject_custom_css():
     """Inject premium CSS styles for styling native Streamlit widgets."""
     css = """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
+    
     /* Global Typography Overrides */
     html, body, [class*="css"], .stApp {
         font-family: 'Inter', sans-serif !important;
         background-color: #fcfdfe !important;
         color: #1e293b !important;
     }
+
+    /* Hide Streamlit default header */
+header[data-testid="stHeader"] {
+    display: none !important;
+}
+
+div[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+#MainMenu {
+    visibility: hidden !important;
+}
+
 
     /* Top Navigation bar styling */
     .shopwise-header-container {
@@ -39,7 +52,7 @@ def inject_custom_css():
     }
     
     .shopwise-logo-icon {
-        background-color: #7c4dff;
+        background-color: #2563EB;
         color: white;
         width: 40px;
         height: 40px;
@@ -49,7 +62,7 @@ def inject_custom_css():
         justify-content: center;
         font-size: 1.25rem;
         font-weight: 700;
-        box-shadow: 0 4px 10px rgba(124, 77, 255, 0.25);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
     }
     
     .shopwise-logo-text {
@@ -105,7 +118,9 @@ def inject_custom_css():
     }
     
     .stTextInput input:focus {
-        border-color: #7c4dff !important;
+        border-color: #2563EB !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+
     }
 
     /* Brand Button Pills */
@@ -139,9 +154,9 @@ def inject_custom_css():
         border-color: #1e293b !important;
     }
 
-    /* AI Search Button (Purple) */
+    /* AI Search Button */
     .ai-search-container div.stButton > button {
-        background-color: #7c4dff !important;
+        background-color: #2563EB !important;
         color: #ffffff !important;
         border: none !important;
         border-radius: 12px !important;
@@ -152,7 +167,7 @@ def inject_custom_css():
     }
     
     .ai-search-container div.stButton > button:hover {
-        background-color: #651fff !important;
+        background-color: #1D4ED8 !important;
         box-shadow: 0 6px 16px rgba(124, 77, 255, 0.3) !important;
     }
 
@@ -242,7 +257,7 @@ def inject_custom_css():
     div[data-testid="stVerticalBlockBorderDiv"]:has(div.product-card-anchor):hover {
         transform: translateY(-5px) !important;
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06) !important;
-        border-color: #e2e8f0 !important;
+        border-color: #2563EB !important;
     }
 
     /* Styling elements inside native product cards */
@@ -393,6 +408,100 @@ def inject_custom_css():
         background-color: #1e293b !important;
         color: #ffffff !important;
         transform: translateY(-2px) !important;
+    }
+
+    /* Welcome/Home Page Styling */
+    .home-container {
+        text-align: center;
+        padding: 3.5rem 2rem;
+        background-color: #ffffff;
+        border: 1px solid #f1f5f9;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015);
+        max-width: 650px;
+        margin: 4rem auto;
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .home-illustration-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #7C4DFF 0%, #6D28D9 100%);
+        width: 90px;
+        height: 90px;
+        border-radius: 24px;
+        box-shadow: 0 10px 25px rgba(124, 77, 255, 0.25);
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .home-illustration-wrapper:hover {
+        transform: scale(1.05) rotate(5deg);
+    }
+
+    .home-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+    }
+    
+    .home-subtitle {
+        font-size: 0.875rem;
+        color: #2563EB;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;home
+        margin-bottom: 1.5rem;
+    }
+    
+    .home-description {
+        font-size: 1.1rem;
+        color: #475569;
+        line-height: 1.6;
+        margin-bottom: 2.5rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Center and style the Enter App button */
+    .home-button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .home-button-container div.stButton > button {
+        background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 14px !important;
+        font-weight: 600 !important;
+        font-size: 1.1rem !important;
+        padding: 0.75rem 2.5rem !important;
+        box-shadow: 0 4px 15px rgba(124, 77, 255, 0.3) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        height: auto !important;
+        min-width: 200px !important;
+    }
+    
+    .home-button-container div.stButton > button:hover {
+        background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%) !important;
+        box-shadow: 0 6px 20px rgba(124, 77, 255, 0.45) !important;
+        transform: translateY(-2px) !important;
+        color: #ffffff !important;
+    }
+    
+    .home-button-container div.stButton > button:active {
+        transform: translateY(0) !important;
     }
     </style>
     """

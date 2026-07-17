@@ -18,8 +18,6 @@ def render_header():
     with col2:
         st.markdown(
             '<div style="display:flex; justify-content:flex-end; align-items:center; gap:1.25rem; color:#64748b; font-size:1.25rem; margin-top:0.15rem;">'
-            '<span style="cursor:pointer;" title="Light Mode">☀️</span>'
-            '<span style="cursor:pointer;" title="Feedback">💡</span>'
             '</div>',
             unsafe_allow_html=True
         )

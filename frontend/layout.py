@@ -15,7 +15,6 @@ def render_sidebar_filters() -> Tuple[str, float, str, bool]:
         st.markdown('**Product search**')
         query = st.text_input(
             "Product search",
-            value=st.session_state.get("search_query", "Sony WH-1000XM5"),
             placeholder="Search products...",
             label_visibility="collapsed"
         )
