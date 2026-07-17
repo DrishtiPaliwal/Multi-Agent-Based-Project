@@ -1,3 +1,8 @@
+.venv/
+.env
+__pycache__/
+.streamlit/secrets.toml
+
 # Environment variables (contains API keys - never commit)
 .env
 
@@ -27,4 +32,5 @@ Thumbs.db
 
 # Node (for frontend, if applicable)
 node_modules/
+
 
