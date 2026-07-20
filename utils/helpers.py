@@ -7,5 +7,6 @@ def normalize_price(price):
     return 0.0
 
 
-def format_currency(amount):
-    return f"₹{amount:,.2f}"
+def format_currency(amount, symbol="₹"):
+    """Format price with currency symbol."""
+    return f"{symbol}{amount:,.2f}"

@@ -173,12 +173,7 @@ if trigger_search:
         raw_products = generate_mock_products(query)
         
     # Normalize product objects to dicts
-    products = []
-    for p in raw_products:
-        if hasattr(p, "model_dump"):
-            products.append(p.model_dump())
-        elif isinstance(p, dict):
-            products.append(p)
+    products = raw_products
             
     st.session_state.products = products
     st.session_state.agent_status["search"] = "completed"

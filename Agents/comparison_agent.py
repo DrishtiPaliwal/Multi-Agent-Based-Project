@@ -1,5 +1,16 @@
 from models.product import Product
-from utils.helpers import calculate_value_score
+
+
+def calculate_value_score(price: float, rating: float, max_price: float) -> float:
+    """Calculate value score based on price and rating."""
+
+    if max_price == 0:
+        return 0.0
+
+    price_score = (1 - (price / max_price)) * 50
+    rating_score = (rating / 5) * 50
+
+    return round(price_score + rating_score, 2)
 
 
 def comparison_agent(state):
@@ -11,15 +22,16 @@ def comparison_agent(state):
             "comparison_data": {}
         }
 
-    # Find cheapest product
+    # Cheapest product
     cheapest = min(products, key=lambda product: product.price)
 
-    # Find highest rated product
+    # Highest rated product
     highest_rated = max(products, key=lambda product: product.rating)
 
-    # Calculate value score
+    # Maximum price
     max_price = max(product.price for product in products)
 
+    # Calculate value score
     for product in products:
         product.value_score = calculate_value_score(
             product.price,
@@ -27,14 +39,26 @@ def comparison_agent(state):
             max_price
         )
 
-    # Find best value product
+    # Best value product
     best_value = max(products, key=lambda product: product.value_score)
+
+    # Group products by source
+    by_source = {}
+
+    for product in products:
+        source = product.source
+
+        if source not in by_source:
+            by_source[source] = []
+
+        by_source[source].append(product)
 
     comparison_data = {
         "products": products,
         "cheapest": cheapest,
         "highest_rated": highest_rated,
-        "best_value": best_value
+        "best_value": best_value,
+        "by_source": by_source
     }
 
     return {

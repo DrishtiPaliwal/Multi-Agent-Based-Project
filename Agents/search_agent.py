@@ -1,12 +1,27 @@
 from Services.amazon_service import AmazonService
 from Services.flipkart_service import FlipkartService
 from Services.firecrawl_service import FirecrawlService
-from utils.helpers import deduplicate_products
+
+
+def deduplicate_products(products):
+    """Remove duplicate products based on product name."""
+    unique_products = []
+    seen = set()
+
+    for product in products:
+        name = product.name.strip().lower()
+
+        if name not in seen:
+            seen.add(name)
+            unique_products.append(product)
+
+    return unique_products
 
 
 def search_agent(state):
 
-    query = state["query"]
+    query = state.get("query", "")
+    errors = state.get("errors", []).copy()
 
     amazon = AmazonService()
     flipkart = FlipkartService()
@@ -14,27 +29,28 @@ def search_agent(state):
 
     products = []
 
-    # Search Amazon
+    # Amazon Search
     try:
         products.extend(amazon.search(query))
-    except:
-        print("Amazon search failed")
+    except Exception as e:
+        errors.append(f"Amazon search failed: {e}")
 
-    # Search Flipkart
+    # Flipkart Search
     try:
         products.extend(flipkart.search(query))
-    except:
-        print("Flipkart search failed")
+    except Exception as e:
+        errors.append(f"Flipkart search failed: {e}")
 
-    # Search Other Stores
+    # Other Stores Search
     try:
         products.extend(firecrawl.search(query))
-    except:
-        print("Other store search failed")
+    except Exception as e:
+        errors.append(f"Other store search failed: {e}")
 
     # Remove duplicate products
     products = deduplicate_products(products)
 
     return {
-        "products": products
+        "products": products,
+        "errors": errors,
     }

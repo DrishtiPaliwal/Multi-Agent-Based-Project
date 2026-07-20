@@ -8,7 +8,8 @@ def response_agent(state):
 
     if not recommendations:
         return {
-            "ai_response": "No products found."
+            "final_response": "No products found.",
+            "comparison_summary": ""
         }
 
     groq = GroqService()
@@ -28,5 +29,5 @@ def response_agent(state):
 
     return {
         "comparison_summary": comparison,
-        "ai_response": response
+        "final_response": response
     }

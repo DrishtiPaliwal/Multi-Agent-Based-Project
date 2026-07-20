@@ -1,7 +1,7 @@
 import requests
 
 from models.product import Product
-from utils.config import SERPAPI_KEY
+from utils.config import Settings
 
 
 class AmazonService:
@@ -14,11 +14,12 @@ class AmazonService:
             "engine": "amazon",
             "k": query,
             "amazon_domain": "amazon.in",
-            "api_key": SERPAPI_KEY
+            "api_key": Settings().SERPAPI_KEY
         }
 
         try:
             response = requests.get(url, params=params)
+            response.raise_for_status()
             data = response.json()
 
             products = []
@@ -27,18 +28,25 @@ class AmazonService:
 
                 # Get price
                 price = 0.0
+
                 if isinstance(item.get("price"), dict):
                     price = float(item["price"].get("value", 0))
+
                 else:
                     try:
-                        price = float(str(item.get("price", 0)).replace("₹", "").replace(",", ""))
-                    except:
+                        price = float(
+                            str(item.get("price", 0))
+                            .replace("₹", "")
+                            .replace(",", "")
+                        )
+                    except ValueError:
                         price = 0.0
 
                 product = Product(
                     name=item.get("title", "N/A"),
                     price=price,
                     rating=float(item.get("rating", 0)),
+                    seller=item.get("seller", "Amazon"),
                     image=item.get("thumbnail", ""),
                     url=item.get("link", ""),
                     source="Amazon"

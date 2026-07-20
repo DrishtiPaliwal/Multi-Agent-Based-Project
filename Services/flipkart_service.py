@@ -1,4 +1,6 @@
 import asyncio
+import re
+
 from playwright.async_api import async_playwright
 
 from models.product import Product
@@ -15,44 +17,86 @@ class FlipkartService:
         async with async_playwright() as p:
 
             browser = await p.chromium.launch(headless=True)
-            page = await browser.new_page()
 
-            url = f"https://www.flipkart.com/search?q={query}"
+            page = await browser.new_page(
+                user_agent=(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/125.0 Safari/537.36"
+                )
+            )
 
-            await page.goto(url)
+            await page.goto(
+                f"https://www.flipkart.com/search?q={query}",
+                wait_until="networkidle"
+            )
 
-            # Close login popup (if it appears)
+            # Close login popup if present
             try:
-                await page.click("button._2KpZ6l._2doB4z", timeout=3000)
-            except:
+                await page.locator("button:has-text('✕')").click(timeout=3000)
+            except Exception:
                 pass
 
-            await page.wait_for_timeout(3000)
+            cards = await page.locator("div[data-id]").all()
 
-            items = await page.query_selector_all("div[data-id]")
-
-            for item in items[:MAX_PRODUCTS_PER_SOURCE]:
+            for card in cards[:MAX_PRODUCTS_PER_SOURCE]:
 
                 try:
-                    name = await item.query_selector("div.KzDlHZ")
-                    price = await item.query_selector("div.Nx9bqj")
-                    rating = await item.query_selector("div.XQDdHH")
-                    link = await item.query_selector("a.CGtC98")
-                    image = await item.query_selector("img")
 
-                    product = Product(
-                        name=await name.inner_text() if name else "Unknown Product",
-                        price=normalize_price(await price.inner_text()) if price else 0.0,
-                        rating=float(await rating.inner_text()) if rating else 0.0,
-                        seller="Flipkart",
-                        source="Flipkart",
-                        url="https://www.flipkart.com" + await link.get_attribute("href") if link else "",
-                        image_url=await image.get_attribute("src") if image else ""
+                    text = await card.inner_text()
+
+                    lines = [
+                        line.strip()
+                        for line in text.split("\n")
+                        if line.strip()
+                    ]
+
+                    if not lines:
+                        continue
+
+                    name = lines[0]
+
+                    price_match = re.search(r"₹[\d,]+", text)
+                    price = (
+                        normalize_price(price_match.group())
+                        if price_match
+                        else 0.0
                     )
 
-                    products.append(product)
+                    rating_match = re.search(r"\b([0-5]\.?[0-9]?)\b", text)
+                    rating = (
+                        float(rating_match.group(1))
+                        if rating_match
+                        else 0.0
+                    )
 
-                except:
+                    image = await card.locator("img").first.get_attribute("src")
+
+                    href = ""
+                    links = await card.locator("a").all()
+
+                    for link in links:
+                        candidate = await link.get_attribute("href")
+                        if candidate:
+                            href = candidate
+                            break
+
+                    if href and not href.startswith("http"):
+                        href = "https://www.flipkart.com" + href
+
+                    products.append(
+                        Product(
+                            name=name,
+                            price=price,
+                            rating=rating,
+                            seller="Flipkart",
+                            source="Flipkart",
+                            url=href,
+                            image_url=image or "",
+                        )
+                    )
+
+                except Exception:
                     continue
 
             await browser.close()
