@@ -50,6 +50,9 @@ class AmazonService:
                     image_url=item.get("thumbnail", ""),
                     url=item.get("link", ""),
                     source="Amazon"
+                    # brand and specifications are omitted.
+                    # Product model defaults will be used because
+                    # SerpAPI's Amazon endpoint does not reliably provide them.
                 )
 
                 products.append(product)

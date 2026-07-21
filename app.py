@@ -162,10 +162,8 @@ if trigger_search:
     progress_placeholder.empty()
     with progress_placeholder:
         render_progress_tracker(st.session_state.agent_status)
-
-    #run AI workflow
+        # run AI workflow
     run_agents(query, budget, brand_filter, progress_placeholder)
-
     st.session_state.agent_status["search"] = "completed"
 
     # update the progress tracker
