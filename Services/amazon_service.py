@@ -39,17 +39,22 @@ class AmazonService:
                             .replace("₹", "")
                             .replace(",", "")
                         )
-                    except ValueError:
+                    except (ValueError, TypeError):
                         price = 0.0
 
                 product = Product(
                     name=item.get("title", "N/A"),
                     price=price,
-                    rating=float(item.get("rating", 0)),
+                    rating=float(item.get("rating", 0) or 0),
+                    reviews=int(item.get("reviews", 0) or 0),
+                    delivery_info=item.get("delivery", "") or "",
                     seller=item.get("seller", "Amazon"),
-                    image=item.get("thumbnail", ""),
+                    image_url=item.get("thumbnail", ""),
                     url=item.get("link", ""),
                     source="Amazon"
+                    # brand and specifications are omitted.
+                    # Product model defaults will be used because
+                    # SerpAPI's Amazon endpoint does not reliably provide them.
                 )
 
                 products.append(product)
