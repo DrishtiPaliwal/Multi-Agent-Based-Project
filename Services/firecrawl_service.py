@@ -1,7 +1,7 @@
-from firecrawl import FirecrawlApp
+from firecrawl import Firecrawl
 
 from models.product import Product
-from utils.config import settings
+from utils.config import Settings
 from utils.constants import MAX_PRODUCTS_PER_SOURCE
 from utils.helpers import normalize_price
 
@@ -14,7 +14,7 @@ class FirecrawlService:
     }
 
     def __init__(self):
-        self.app = FirecrawlApp(api_key=settings.FIRECRAWL_API_KEY)
+        self.app = Firecrawl(api_key=Settings().FIRECRAWL_API_KEY)
 
     def search(self, query):
 
@@ -26,48 +26,16 @@ class FirecrawlService:
             url = url_template.format(query=query)
 
             try:
-                result = self.app.scrape_url(
+                result = self.app.scrape(
                     url,
-                    {
-                        "extractorOptions": {
-                            "mode": "llm-extraction",
-                            "extractionSchema": {
-                                "type": "object",
-                                "properties": {
-                                    "products": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "price": {
-                                                    "type": "string"
-                                                },
-                                                "rating": {
-                                                    "type": "number"
-                                                },
-                                                "image_url": {
-                                                    "type": "string"
-                                                },
-                                                "url": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    formats=["markdown"]
                 )
 
                 if not result:
                     continue
 
-                extracted = result.get("llm_extraction", {})
-                product_list = extracted.get("products", [])
+                markdown = result.markdown if hasattr(result, "markdown") else ""
+                product_list = getattr(result, "product_list", []) or []
 
                 for item in product_list[:MAX_PRODUCTS_PER_SOURCE]:
 
