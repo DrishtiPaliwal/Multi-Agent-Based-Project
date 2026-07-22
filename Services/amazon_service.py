@@ -7,31 +7,19 @@ from utils.config import get_settings
 class AmazonService:
 
     def search(self, query):
-        """Search Amazon products using SerpAPI."""
-
-        # ---------------- Validate Query ----------------
-        if not query or not str(query).strip():
-            print("AmazonService: Empty search query received.")
-            return []
 
         url = "https://serpapi.com/search"
 
         params = {
             "engine": "amazon",
-            "k": query.strip(),
+            "k": query,
             "amazon_domain": "amazon.in",
             "api_key": get_settings().SERPAPI_KEY
         }
 
         try:
-            response = requests.get(
-                url,
-                params=params,
-                timeout=15,
-            )
-
+            response = requests.get(url, params=params)
             response.raise_for_status()
-
             data = response.json()
 
             products = []
@@ -52,8 +40,6 @@ class AmazonService:
                     except (ValueError, TypeError):
                         price = 0.0
 
-                # ---------------- Product ----------------
-
                 product = Product(
                     name=item.get("title", "N/A"),
                     price=price,
@@ -63,21 +49,16 @@ class AmazonService:
                     seller=item.get("seller", "Amazon"),
                     image_url=item.get("thumbnail", ""),
                     url=item.get("link", ""),
-                    source="Amazon",
+                    source="Amazon"
+                    # brand and specifications are omitted.
+                    # Product model defaults will be used because
+                    # SerpAPI's Amazon endpoint does not reliably provide them.
                 )
 
                 products.append(product)
 
             return products
 
-        except requests.exceptions.HTTPError as e:
-            print(f"Amazon HTTP Error: {e}")
-            return []
-
-        except requests.exceptions.RequestException as e:
-            print(f"Amazon Request Error: {e}")
-            return []
-
         except Exception as e:
-            print(f"Amazon Unexpected Error: {e}")
+            print("Amazon Error:", e)
             return []
