@@ -53,33 +53,7 @@ def render_sidebar_filters() -> Tuple[str, float, str, bool]:
 
         # ---------------- Brand Filter ----------------
 
-        brands = [
-            "All Brands",
-            "Apple",
-            "Samsung",
-            "OnePlus",
-            "boAt",
-            "Sony",
-            "HP",
-            "Dell",
-            "Lenovo",
-        ]
-
-        selected_brand = st.selectbox(
-            "Brand",
-            brands,
-            index=0,
-        )
-
-        brand_filter = (
-            ""
-            if selected_brand == "Brands"
-            else selected_brand
-        )
-
-        st.session_state.active_brand = selected_brand
-
-        st.markdown("---")
+        brand_filter = ""
 
         # ---------------- Search Sources ----------------
 
